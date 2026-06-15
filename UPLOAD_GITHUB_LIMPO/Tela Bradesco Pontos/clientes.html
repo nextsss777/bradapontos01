@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Administrativo | Bradesco Pontos</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {dark;
+      --bg: #120202;
+      --panel: rgba(0, 0, 0, 0.82);
+      --panel-soft: rgba(35, 5, 5, 0.85);
+      --text: #ff4f4f;
+      --muted: #ff9191;
+      --accent: #ff4f4f;
+      --accent-strong: #ff8686;
+      --success: #7cff00;
+      --success-soft: rgba(124, 255, 0, 0.16);
+      --border: rgba(255, 79, 79, 0.25);
+      --shadow: 0 0 40px rgba(255, 79, 79, 0.16);
+      --surface: #170909;
+      --surface-alt: #211111;
+      font-family: 'Space Mono', 'Consolas', 'Monaco', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, rgba(255, 79, 79, 0.12), transparent 28%),
+                  #020602;
+      color: var(--text);
+    }
+      color: var(--text);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #050505;
+      border-bottom: 1px solid rgba(255, 79, 79, 0.22);
+      backdrop-filter: blur(16px);
+    }
+
+    .page-header .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      min-height: 80px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff4f4f, #b90000);
+      display: grid;
+      place-items: center;
+      color: #120202;
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.2;
+      box-shadow: 0 0 24px rgba(255, 79, 79, 0.35);
+    }
+
+    .brand-text {
+      display: grid;
+      line-height: 1.1;
+    }
+
+    .brand-text strong {
+      font-size: 1rem;
+    }
+
+    .brand-text span {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-links a {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 650;
+      color: var(--muted);
+      background: rgba(255, 79, 79, 0.08);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      background: rgba(255, 79, 79, 0.16);
+      color: var(--accent-strong);
+      box-shadow: 0 14px 30px rgba(255, 79, 79, 0.12);
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 32px auto 48px;
+      display: grid;
+      gap: 28px;
+    }
+
+    .dashboard-hero {
+      display: grid;
+      gap: 26px;
+      padding: 32px;
+      border-radius: 28px;
+      background: radial-gradient(circle at top left, rgba(255, 79, 79, 0.16), transparent 38%),
+                   linear-gradient(180deg, #050505 0%, #120202 100%);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 79, 79, 0.22);
+    }
+
+    .hero-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hero-copy {
+      max-width: 720px;
+    }
+
+    .hero-copy h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2.2rem, 3vw, 3.5rem);
+      line-height: 1.05;
+    }
+
+    .hero-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.75;
+    }
+
+    .hero-stats {
+      display: grid;
+      gap: 16px;
+      width: min(510px, 100%);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: var(--success-soft);
+      color: var(--success);
+      font-weight: 700;
+      width: fit-content;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      padding: 24px;
+      border-radius: 24px;
+      background: var(--surface);
+      border: 1px solid rgba(226, 232, 240, 0.98);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+    }
+
+    .card small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-size: 0.94rem;
+    }
+
+    .card strong {
+      display: block;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+      line-height: 1;
+      color: var(--success);
+      text-shadow: 0 0 14px rgba(124, 255, 0, 0.55);
+    }
+
+    .card .badge {
+      margin-top: 14px;
+      padding: 8px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      color: var(--success);
+      background: var(--success-soft);
+    }
+
+    .dashboard-panel {
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr;
+      gap: 20px;
+    }
+
+    .map-card,
+    .activity-card {
+      padding: 26px;
+      border-radius: 28px;
+      background: var(--surface);
+      border: 1px solid rgba(226, 232, 240, 0.95);
+      box-shadow: var(--shadow);
+    }
+
+    .map-card h2,
+    .activity-card h2 {
+      margin: 0 0 18px;
+      font-size: 1.12rem;
+    }
+
+    .map-frame {
+      position: relative;
+      min-height: 388px;
+      border-radius: 24px;
+      background: radial-gradient(circle at center, rgba(255, 79, 79, 0.08), transparent 45%),
+                  rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+      border: 1px solid rgba(255, 79, 79, 0.18);
+      box-shadow: inset 0 0 0 1px rgba(255, 79, 79, 0.06);
+    }
+
+    #globeContainer {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 388px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .globe-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 280px;
+      height: 280px;
+      border: 3px solid #7cff00;
+      border-radius: 50%;
+      box-shadow: 0 0 30px rgba(124, 255, 0, 0.5), inset 0 0 30px rgba(124, 255, 0, 0.1);
+      z-index: 5;
+    }
+
+    .globe-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #7cff00;
+      box-shadow: 0 0 10px #7cff00, 0 0 20px rgba(124, 255, 0, 0.6);
+      animation: globePulse 1.5s ease-in-out infinite;
+      z-index: 6;
+    }
+
+    @keyframes globePulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.4);
+        opacity: 0.7;
+      }
+    }
+
+    .globe-caption {
+      position: absolute;
+      bottom: 20px;
+      left: 24px;
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      z-index: 10;
+    }
+
+    .globe-caption strong {
+      color: var(--success);
+      text-shadow: 0 0 14px rgba(124, 255, 0, 0.55);
+    }
+
+    .map-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.72) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.72) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .map-background {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      filter: drop-shadow(0 24px 40px rgba(15, 23, 42, 0.08));
+    }
+
+    .map-background svg {
+      width: 100%;
+      height: auto;
+      max-width: 760px;
+      opacity: 0.35;
+    }
+
+    .map-dot {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: var(--success);
+      box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.12);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .map-dot::after {
+      content: "";
+      position: absolute;
+      inset: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .map-caption {
+      position: absolute;
+      bottom: 20px;
+      left: 24px;
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .activity-card .status-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      border-radius: 20px;
+      background: var(--surface-alt);
+      border: 1px solid rgba(226, 232, 240, 0.95);
+    }
+
+    .status-item {
+      display: grid;
+      gap: 6px;
+    }
+
+    .status-item strong {
+      font-size: 1.1rem;
+    }
+
+    .status-item span {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .status-chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 79, 79, 0.08);
+      color: var(--accent);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-chip-online {
+      background: rgba(124, 255, 0, 0.12) !important;
+      color: #7cff00 !important;
+    }
+
+    .activity-card .list {
+      margin-top: 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .list-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: var(--surface-alt);
+      border: 1px solid rgba(226, 232, 240, 0.95);
+    }
+
+    .list-item strong {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .list-item span {
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .online-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--success);
+      box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.12);
+    }
+
+    .help-text {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 980px) {
+      .cards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .dashboard-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-header .container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .nav-links {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.16); opacity: 0.72; }
+    }
+  </style>
+</head>
+<body>
+    <header class="page-header">
+    <div class="container">
+      <div class="brand">
+        <span class="brand-mark">BY:<br>Nxt</span>
+        <span class="brand-text"><strong>Bradesco Pontos</strong><span>Dashboard</span></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="hero-top">
+        <div class="hero-copy">
+          <span class="hero-badge">Visão em tempo real</span>
+          <h1>Monitoramento de acessos e usuários online</h1>
+          <p>Painel administrativo intuitivo para ver quantas pessoas acessaram, quem está online agora e onde os acessos estão concentrados.</p>
+        </div>
+        <div class="hero-stats">
+          <div class="card">
+            <small>Total de acessos</small>
+            <strong id="totalVisits">0</strong>
+            <span class="badge">Contagem acumulada</span>
+          </div>
+          <div class="card">
+            <small>Online agora</small>
+            <strong id="onlineCount">0</strong>
+            <span class="badge">Atualizado automaticamente</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cards-grid">
+      <article class="card">
+        <small>Acessos nos últimos 30 min</small>
+        <strong id="recentVisits">0</strong>
+      </article>
+      <article class="card">
+        <small>Ativos no mapa</small>
+        <strong id="activeDots">0</strong>
+      </article>
+      <article class="card">
+        <small>Clientes simultâneos</small>
+        <strong id="sessionsCount">0</strong>
+      </article>
+      <article class="card">
+        <small>Mais acessados</small>
+        <strong id="topLocation">São Paulo</strong>
+      </article>
+    </section>
+
+    <section class="dashboard-panel">
+      <article class="map-card">
+        <h2>Mapa de acessos em tempo real</h2>
+        <div class="map-frame">
+          <div id="globeContainer">
+            <div class="globe-circle" id="globeCircle"></div>
+            <div class="globe-caption">
+              <strong id="globeUserCount">0 usuários conectados agora</strong>
+              <span>Ponto verde indica sessão ativa</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="activity-card">
+        <h2>Atividade de usuários</h2>
+        <div class="status-list">
+          <div class="status-pill">
+            <div class="status-item">
+              <strong id="activityLabel">Acesso em andamento</strong>
+              <span>Usuário com sessão ativa no momento</span>
+            </div>
+            <span class="status-chip status-chip-online">Online</span>
+          </div>
+          <div class="status-pill">
+            <div class="status-item">
+              <strong id="locationLabel">Local principal</strong>
+              <span>Região com maior tráfego agora</span>
+            </div>
+            <span class="status-chip">São Paulo</span>
+          </div>
+        </div>
+
+        <div class="list" id="activityList">
+          <div class="list-item">
+            <div>
+              <strong>São Paulo</strong>
+              <span>1 usuário online</span>
+            </div>
+            <div class="online-dot" aria-hidden="true"></div>
+          </div>
+          <div class="list-item">
+            <div>
+              <strong>Rio de Janeiro</strong>
+              <span>offline</span>
+            </div>
+            <span style="color: var(--muted); font-size: 0.86rem;">aguardando</span>
+          </div>
+          <div class="list-item">
+            <div>
+              <strong>Brasília</strong>
+              <span>offline</span>
+            </div>
+            <span style="color: var(--muted); font-size: 0.86rem;">aguardando</span>
+          </div>
+        </div>
+
+        <p class="help-text">Esse dashboard foi desenvolvido por um M@conheiro do 7.</p>
+      </article>
+    </section>
+  </main>
+  <script src="firebase-config.js"></script>
+  <script src="realtime-config.js"></script>
+  <script src="realtime-client.js"></script>
+  <script>
+    function updateDashboard(data) {
+      const total = Number(data.total || 0);
+      const online = Number(data.online || 0);
+      const clients = Array.isArray(data.clients) ? data.clients : [];
+      const regions = Array.isArray(data.regions) ? data.regions : [];
+
+      document.getElementById('totalVisits').textContent = total.toLocaleString('pt-BR');
+      document.getElementById('onlineCount').textContent = online.toLocaleString('pt-BR');
+      document.getElementById('recentVisits').textContent = Number(data.recent || 0).toLocaleString('pt-BR');
+      document.getElementById('activeDots').textContent = online;
+      document.getElementById('sessionsCount').textContent = online.toLocaleString('pt-BR');
+      document.getElementById('topLocation').textContent = data.top || '-';
+      document.getElementById('activityLabel').textContent = online > 0 ? `${online} acesso${online === 1 ? '' : 's'} em andamento` : 'Nenhum acesso em andamento';
+      document.getElementById('locationLabel').textContent = data.top && data.top !== '-' ? data.top : 'Aguardando acessos';
+
+      const globeCaption = document.getElementById('globeUserCount');
+      if (globeCaption) {
+        globeCaption.textContent = `${online} usuario${online === 1 ? '' : 's'} conectado${online === 1 ? '' : 's'} agora`;
+      }
+
+      const statusLocation = document.querySelector('.status-list .status-pill:nth-child(2) .status-chip');
+      if (statusLocation) statusLocation.textContent = data.top && data.top !== '-' ? data.top : 'aguardando';
+
+      renderMap(clients);
+      renderActivityList(clients, regions);
+    }
+
+    function renderMap(clients) {
+      const globeContainer = document.getElementById('globeContainer');
+      if (!globeContainer) return;
+
+      globeContainer.querySelectorAll('.globe-dot[data-client]').forEach(node => node.remove());
+
+      clients.forEach((client, index) => {
+        const dot = document.createElement('div');
+        const pos = getPointInCircle(client.id, index);
+        dot.className = 'globe-dot';
+        dot.setAttribute('data-client', client.id);
+        dot.title = `Usuario online: ${client.region || 'desconhecido'} - ${client.page || 'pagina'}`;
+        dot.style.left = pos.x + '%';
+        dot.style.top = pos.y + '%';
+        dot.style.transform = 'translate(-50%, -50%)';
+        globeContainer.appendChild(dot);
+      });
+    }
+
+    function renderActivityList(clients, regions) {
+      const list = document.getElementById('activityList');
+      if (!list) return;
+
+      list.innerHTML = '';
+
+      if (!clients.length) {
+        list.innerHTML = `
+          <div class="list-item">
+            <div>
+              <strong>Nenhum usuario online</strong>
+              <span>Aguardando novos acessos</span>
+            </div>
+            <span style="color: var(--muted); font-size: 0.86rem;">aguardando</span>
+          </div>
+        `;
+        return;
+      }
+
+      clients.forEach(client => {
+        const item = document.createElement('div');
+        const lastSeen = client.lastSeen ? new Date(client.lastSeen).toLocaleTimeString('pt-BR') : 'agora';
+        item.className = 'list-item';
+        item.innerHTML = `
+          <div>
+            <strong>${escapeHtml(client.region || 'Desconhecido')}</strong>
+            <span>${escapeHtml(client.page || 'Pagina acessada')} - ativo as ${lastSeen}</span>
+          </div>
+          <div class="online-dot" aria-hidden="true"></div>
+        `;
+        list.appendChild(item);
+      });
+
+      regions.slice(0, 3).forEach(region => {
+        const count = Number(region.count || 0);
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.innerHTML = `
+          <div>
+            <strong>${escapeHtml(region.region || 'Desconhecido')}</strong>
+            <span>${count} usuario${count === 1 ? '' : 's'} online nesta regiao</span>
+          </div>
+          <span style="color: var(--muted); font-size: 0.86rem;">regiao</span>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function getPointInCircle(id, index) {
+      const seed = hashId(id) + index * 37;
+      const angle = (seed % 360) * Math.PI / 180;
+      const radius = 42 + (seed % 78);
+      const x = 50 + (radius / 280) * 100 * Math.cos(angle);
+      const y = 50 + (radius / 280) * 100 * Math.sin(angle);
+      return { x, y };
+    }
+
+    function hashId(id) {
+      return String(id || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    BradescoRealtime.connectDashboard(updateDashboard);
+  </script></body>
+</html>

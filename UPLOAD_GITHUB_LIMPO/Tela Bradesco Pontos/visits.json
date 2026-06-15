@@ -1,0 +1,23 @@
+{
+  "total": 2,
+  "seen": [
+    "v_b6qj5bi6",
+    "codex_host_fix_1781291559566"
+  ],
+  "visits": [
+    {
+      "id": "v_b6qj5bi6",
+      "firstSeen": 1781290220795,
+      "lastSeen": 1781295362790,
+      "region": "America/Sao_Paulo",
+      "page": "Portal de Pontos | Portal de Resgate"
+    },
+    {
+      "id": "codex_host_fix_1781291559566",
+      "firstSeen": 1781291559587,
+      "lastSeen": 1781291559587,
+      "region": "America/Sao_Paulo",
+      "page": "Teste hospedagem"
+    }
+  ]
+}

